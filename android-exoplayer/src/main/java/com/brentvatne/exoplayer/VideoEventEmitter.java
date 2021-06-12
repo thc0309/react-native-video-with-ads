@@ -48,6 +48,11 @@ class VideoEventEmitter {
     private static final String EVENT_AUDIO_FOCUS_CHANGE = "onAudioFocusChanged";
     private static final String EVENT_PLAYBACK_RATE_CHANGE = "onPlaybackRateChange";
 
+    private static final String EVENT_ADS_COMPLETED = "onAdsComplete";
+    private static final String EVENT_AD_ERROR = "onAdError";
+    private static final String EVENT_ADS_LOADED = "onAdsLoaded";
+    private static final String EVENT_AD_STARTED = "onAdStarted";
+
     static final String[] Events = {
             EVENT_LOAD_START,
             EVENT_LOAD,
@@ -69,6 +74,10 @@ class VideoEventEmitter {
             EVENT_AUDIO_FOCUS_CHANGE,
             EVENT_PLAYBACK_RATE_CHANGE,
             EVENT_BANDWIDTH,
+            EVENT_ADS_COMPLETED,
+            EVENT_AD_ERROR,
+            EVENT_ADS_LOADED,
+            EVENT_AD_STARTED
     };
 
     @Retention(RetentionPolicy.SOURCE)
@@ -93,6 +102,10 @@ class VideoEventEmitter {
             EVENT_AUDIO_FOCUS_CHANGE,
             EVENT_PLAYBACK_RATE_CHANGE,
             EVENT_BANDWIDTH,
+            EVENT_ADS_COMPLETED,
+            EVENT_AD_ERROR,
+            EVENT_ADS_LOADED,
+            EVENT_AD_STARTED
     })
     @interface VideoEvents {
     }
@@ -294,6 +307,16 @@ class VideoEventEmitter {
         receiveEvent(EVENT_AUDIO_FOCUS_CHANGE, map);
     }
 
+    void adsCompleted() {
+        receiveEvent(EVENT_ADS_COMPLETED, null);
+    }
+    void adError() {
+        receiveEvent(EVENT_AD_ERROR, null);
+    }
+    void adsLoaded() {
+        receiveEvent(EVENT_ADS_LOADED, null);
+    }
+    void adStarted() { receiveEvent(EVENT_AD_STARTED, null); }
     void audioBecomingNoisy() {
         receiveEvent(EVENT_AUDIO_BECOMING_NOISY, null);
     }
