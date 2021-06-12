@@ -38,6 +38,7 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
     private static final String PROP_DRM_HEADERS = "headers";
     private static final String PROP_SRC_HEADERS = "requestHeaders";
     private static final String PROP_RESIZE_MODE = "resizeMode";
+    private static final String PROP_AD_TAG_URL = "adTagUrl";
     private static final String PROP_REPEAT = "repeat";
     private static final String PROP_SELECTED_AUDIO_TRACK = "selectedAudioTrack";
     private static final String PROP_SELECTED_AUDIO_TRACK_TYPE = "type";
@@ -173,6 +174,22 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
                 }
             }
         }
+    }
+
+    @ReactProp(name = PROP_AD_TAG_URL)
+    public void setAdTagUrl(final ReactExoplayerView videoView, final String uriString) {
+        if (TextUtils.isEmpty(uriString)) {
+            return;
+        }
+
+        if (startsWithValidScheme(uriString)) {
+            Uri adTagUrl = Uri.parse(uriString);
+
+            if (adTagUrl != null) {
+                videoView.setAdTagUrl(adTagUrl);
+            }
+        }
+        return;
     }
 
     @ReactProp(name = PROP_RESIZE_MODE)

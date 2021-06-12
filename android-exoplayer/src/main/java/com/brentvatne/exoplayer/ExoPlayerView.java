@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -19,16 +18,18 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.util.Assertions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @TargetApi(16)
-public final class ExoPlayerView extends FrameLayout {
+public final class ExoPlayerView extends FrameLayout implements AdsLoader.AdViewProvider {
 
     private View surfaceView;
     private final View shutterView;
@@ -38,6 +39,7 @@ public final class ExoPlayerView extends FrameLayout {
     private SimpleExoPlayer player;
     private Context context;
     private ViewGroup.LayoutParams layoutParams;
+    private final FrameLayout adOverlayFrameLayout;
 
     private boolean useTextureView = true;
     private boolean hideShutterView = false;
@@ -79,10 +81,14 @@ public final class ExoPlayerView extends FrameLayout {
 
         updateSurfaceView();
 
+        adOverlayFrameLayout = new FrameLayout(context);
+
         layout.addView(shutterView, 1, layoutParams);
         layout.addView(subtitleLayout, 2, layoutParams);
 
         addViewInLayout(layout, 0, aspectRatioParams);
+        addViewInLayout(adOverlayFrameLayout, 1, layoutParams);
+
     }
 
     private void setVideoView() {
@@ -203,6 +209,20 @@ public final class ExoPlayerView extends FrameLayout {
     public void invalidateAspectRatio() {
         // Resetting aspect ratio will force layout refresh on next video size changed
         layout.invalidateAspectRatio();
+    }
+
+    @Override
+    public ViewGroup getAdViewGroup() {
+        return Assertions.checkNotNull(adOverlayFrameLayout, "exo_ad_overlay must be present for ad playback");
+    }
+
+    @Override
+    public View[] getAdOverlayViews() {
+        ArrayList<View> overlayViews = new ArrayList<>();
+        if (adOverlayFrameLayout != null) {
+            overlayViews.add(adOverlayFrameLayout);
+        }
+        return overlayViews.toArray(new View[0]);
     }
 
     private final class ComponentListener implements SimpleExoPlayer.VideoListener,

@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -54,6 +55,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -108,6 +110,7 @@ class ReactExoplayerView extends FrameLayout implements
     private Player.EventListener eventListener;
 
     private ExoPlayerView exoPlayerView;
+    private ImaAdsLoader adsLoader;
 
     private DataSource.Factory mediaDataSourceFactory;
     private SimpleExoPlayer player;
@@ -157,7 +160,7 @@ class ReactExoplayerView extends FrameLayout implements
     private String[] drmLicenseHeader = null;
     private boolean controls;
     // \ End props
-
+    private Uri adTagUrl;
     // React
     private final ThemedReactContext themedReactContext;
     private final AudioManager audioManager;
@@ -197,6 +200,8 @@ class ReactExoplayerView extends FrameLayout implements
         this.eventEmitter = new VideoEventEmitter(context);
         this.config = config;
         this.bandwidthMeter = config.getBandwidthMeter();
+
+        adsLoader = new ImaAdsLoader(this.themedReactContext, Uri.EMPTY);
 
         createViews();
 
@@ -427,6 +432,7 @@ class ReactExoplayerView extends FrameLayout implements
                     player = ExoPlayerFactory.newSimpleInstance(getContext(), renderersFactory,
                             trackSelector, defaultLoadControl, drmSessionManager, bandwidthMeter);
                     player.addListener(self);
+                    adsLoader.setPlayer(player);
                     player.addMetadataOutput(self);
                     exoPlayerView.setPlayer(player);
                     audioBecomingNoisyReceiver.setListener(self);
@@ -442,11 +448,13 @@ class ReactExoplayerView extends FrameLayout implements
 
                     ArrayList<MediaSource> mediaSourceList = buildTextSources();
                     MediaSource videoSource = buildMediaSource(srcUri, extension);
+                    MediaSource mediaSourceWithAds = new AdsMediaSource(videoSource, mediaDataSourceFactory, adsLoader, exoPlayerView);
+
                     MediaSource mediaSource;
                     if (mediaSourceList.size() == 0) {
-                        mediaSource = videoSource;
+                        mediaSource = mediaSourceWithAds;
                     } else {
-                        mediaSourceList.add(0, videoSource);
+                        mediaSourceList.add(0, mediaSourceWithAds);
                         MediaSource[] textSourceArray = mediaSourceList.toArray(
                                 new MediaSource[mediaSourceList.size()]
                         );
@@ -560,6 +568,7 @@ class ReactExoplayerView extends FrameLayout implements
             trackSelector = null;
             player = null;
         }
+        adsLoader.release();
         progressHandler.removeMessages(SHOW_PROGRESS);
         themedReactContext.removeLifecycleEventListener(this);
         audioBecomingNoisyReceiver.removeListener();
@@ -1023,6 +1032,11 @@ class ReactExoplayerView extends FrameLayout implements
 
     public void setReportBandwidth(boolean reportBandwidth) {
         mReportBandwidth = reportBandwidth;
+    }
+
+    public void setAdTagUrl(final Uri uri) {
+        adTagUrl = uri;
+        adsLoader = new ImaAdsLoader(this.themedReactContext, adTagUrl);
     }
 
     public void setRawSrc(final Uri uri, final String extension) {
