@@ -580,7 +580,7 @@ class ReactExoplayerView extends FrameLayout implements
             trackSelector = null;
             player = null;
         }
-        if(adsLoader !=null){
+        if (adsLoader != null) {
             adsLoader.release();
         }
         progressHandler.removeMessages(SHOW_PROGRESS);
@@ -763,11 +763,11 @@ class ReactExoplayerView extends FrameLayout implements
                 setKeepScreenOn(preventsDisplaySleepDuringVideoPlayback);
                 break;
             case Player.STATE_READY:
-                text += "ready";
+                text += "ready   " ;
                 eventEmitter.ready();
                 onBuffering(false);
                 startProgressHandler();
-                videoLoaded();
+                    videoLoaded();
                 // Setting the visibility for the playerControlView
                 if (playerControlView != null) {
                     playerControlView.show();
@@ -801,8 +801,8 @@ class ReactExoplayerView extends FrameLayout implements
     }
 
     private void videoLoaded() {
-        if (loadVideoStarted) {
-            loadVideoStarted = false;
+//        if (loadVideoStarted) {
+//            loadVideoStarted = false;
             setSelectedAudioTrack(audioTrackType, audioTrackValue);
             setSelectedVideoTrack(videoTrackType, videoTrackValue);
             setSelectedTextTrack(textTrackType, textTrackValue);
@@ -810,9 +810,10 @@ class ReactExoplayerView extends FrameLayout implements
             int width = videoFormat != null ? videoFormat.width : 0;
             int height = videoFormat != null ? videoFormat.height : 0;
             String trackId = videoFormat != null ? videoFormat.id : "-1";
+            Log.d(TAG, "eventEmitter.load: " + player.getDuration());
             eventEmitter.load(player.getDuration(), player.getCurrentPosition(), width, height,
                     getAudioTrackInfo(), getTextTrackInfo(), getVideoTrackInfo(), trackId);
-        }
+//        }
     }
 
     private WritableArray getAudioTrackInfo() {
@@ -1071,6 +1072,7 @@ class ReactExoplayerView extends FrameLayout implements
                                         break;
                                     case STARTED:
                                         eventEmitter.adStarted();
+
                                         break;
                                     case CONTENT_RESUME_REQUESTED:
                                         // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad is completed
@@ -1078,6 +1080,7 @@ class ReactExoplayerView extends FrameLayout implements
                                         break;
                                     case ALL_ADS_COMPLETED:
                                         if (adsLoader != null) {
+
                                             adsLoader.release();
                                             adsLoader = null;
                                         }

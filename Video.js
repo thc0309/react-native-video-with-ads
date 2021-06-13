@@ -201,7 +201,7 @@ export default class Video extends Component {
     if (!this.props.audioOnly) {
       this._hidePoster();
     }
-    
+
     if (this.props.onReadyForDisplay) {
       this.props.onReadyForDisplay(event.nativeEvent);
     }
@@ -262,21 +262,21 @@ export default class Video extends Component {
   };
 
   _onAdsComplete = (event) => {
-    console.log('_onAdsComplete',event)
+    console.log('_onAdsComplete', event)
     if (this.props.onAdsComplete) {
       this.props.onAdsComplete(event.nativeEvent);
     }
   };
 
   _onAdError = (event) => {
-    console.log('_onAdError',event)
+    console.log('_onAdError', event)
     if (this.props.onAdError) {
       this.props.onAdError(event.nativeEvent);
     }
   };
 
   _onAdStarted = (event) => {
-    console.log('_onAdStarted',event)
+    console.log('_onAdStarted', event)
     if (this.props.onAdStarted) {
       this.props.onAdStarted(event.nativeEvent);
     }
