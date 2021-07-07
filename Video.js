@@ -261,26 +261,67 @@ export default class Video extends Component {
     }
   };
 
+  //#region Ads
+
+  requestAds = (url) => {
+    console.log('requestAds', url)
+    if (Platform.OS === 'android') {
+      UIManager.dispatchViewManagerCommand(this.videoHandle, 0, [url]);
+    } else {
+      NativeModules.VideoManager.requestAds(url);
+    }
+  }
+
+  stopAds = () => {
+    if (Platform.OS === 'android') {
+      UIManager.dispatchViewManagerCommand(this.videoHandle, 2, null);
+    }
+    else {
+      NativeModules.VideoManager.stopAds();
+    }
+  }
+
+
+  startAds = () => {
+    if (Platform.OS === 'android') {
+      UIManager.dispatchViewManagerCommand(this.videoHandle, 1, null);
+    } else {
+      NativeModules.VideoManager.startAds();
+    }
+  }
+
+  skipAds = () => {
+    if (Platform.OS === 'android') {
+      UIManager.dispatchViewManagerCommand(this.videoHandle, 2, null);
+    } else {
+      NativeModules.VideoManager.stopAds();
+    }
+  }
   _onAdsComplete = (event) => {
-    console.log('_onAdsComplete', event)
-    if (this.props.onAdsComplete) {
+    if (this.props.onBuffer) {
       this.props.onAdsComplete(event.nativeEvent);
     }
   };
 
   _onAdError = (event) => {
-    console.log('_onAdError', event)
     if (this.props.onAdError) {
       this.props.onAdError(event.nativeEvent);
     }
   };
 
+  _onAdsLoaded = (event) => {
+    if (this.props.onAdsLoaded) {
+      this.props.onAdsLoaded(event.nativeEvent);
+    }
+  };
+
   _onAdStarted = (event) => {
-    console.log('_onAdStarted', event)
     if (this.props.onAdStarted) {
       this.props.onAdStarted(event.nativeEvent);
     }
   };
+
+  //#endregion
 
   getViewManagerConfig = viewManagerName => {
     if (!NativeModules.UIManager.getViewManagerConfig) {
@@ -357,6 +398,7 @@ export default class Video extends Component {
       onPictureInPictureStatusChanged: this._onPictureInPictureStatusChanged,
       onRestoreUserInterfaceForPictureInPictureStop: this._onRestoreUserInterfaceForPictureInPictureStop,
 
+      onAdsLoaded: this._onAdsLoaded,
       onAdError: this._onAdError,
       onAdsComplete: this._onAdsComplete,
       onAdStarted: this._onAdStarted,
@@ -536,10 +578,9 @@ Video.propTypes = {
   onExternalPlaybackChange: PropTypes.func,
 
 
-  onAdError: PropTypes.func,
   onAdsComplete: PropTypes.func,
+  onAdsLoaded: PropTypes.func,
   onAdStarted: PropTypes.func,
-
 
 
   /* Required by react-native */
