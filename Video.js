@@ -118,6 +118,11 @@ export default class Video extends Component {
       this.setState({ showPoster: false });
     }
   }
+  _showPoster = () => {
+    if (!this.state.showPoster) {
+      this.setState({ showPoster: !!this.props.poster });
+    }
+  }
 
   _onLoadStart = (event) => {
     if (this.props.onLoadStart) {
@@ -260,6 +265,16 @@ export default class Video extends Component {
       this.props.onBuffer(event.nativeEvent);
     }
   };
+
+
+  toggleAudioOnly = (isAudio) => {
+    if (!isAudio) {
+      this._hidePoster();
+    } else {
+      this._showPoster();
+    }
+  };
+
 
   //#region Ads
 
